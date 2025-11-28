@@ -17,6 +17,7 @@
     "cors": "*",
     "expo": "~54.0.25",
     "expo-status-bar": "~3.0.8",
+    "expo-updates": "~29.0.13",
     "immer": "^9.0.6",
     "lodash": "^4.17.21",
     "react": "19.1.0",

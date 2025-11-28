@@ -92,7 +92,9 @@ const Item = ({ item }) => {
               <FontAwesome name={liked ? "heart" : "heart-o"} size={24} color="black" style={{padding: 10}}/>
             </TouchableOpacity>
             </View>
-              <Button title="More!!" onPress={()=>toDetails(item)} style={{marginBottom: 10}}/>
+            <View style={{display: 'flex', alignItems: 'center', margin: 10,}}>
+              <Button title="More!!" onPress={()=>toDetails(item)} color ="#58c4dc" style={{ width: '60%', color: 'black'}} titleStyle={{color: 'black'}}/>
+            </View>
             </View>
           </Animated.View>
           
@@ -107,7 +109,9 @@ const Item = ({ item }) => {
           <View style={styles.hiddenTxt}>
             <Text>Author: {item.author}</Text>
             <Text>Publish Year: {item.publish_year}</Text>
+            <View style={{display: 'flex', alignItems: 'center', margin: 10,}}>
             <Button title="More!!" onPress={()=>toDetails(item)}/>
+            </View>
           </View>
         </View>
       )}

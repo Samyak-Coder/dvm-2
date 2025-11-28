@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
     width: '75%',
     borderBlockColor: '#545151',
     padding: 10,
+    color: 'black'
   }
 });
 
