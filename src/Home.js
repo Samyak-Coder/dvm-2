@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import {
   View,
@@ -8,13 +8,40 @@ import {
 } from 'react-native';
 import Item from './Item'
 import debounce from "lodash/debounce";
+import {getBooks, saveBooks} from './cache_storage';
 
 function Home() {
   
-  const [booksList, setBooksList] = useState()
+  const [booksList, setBooksList] = useState([])
+  const [books, setBooks] = useState([])
+
+  useEffect(() => {
+    const load = async () => {
+      const storedBooks = await getBooks();
+      setBooks(storedBooks);
+    };
+
+    load();
+  }, []);
+
+  const mergeAndSave = async (newResults) => {
+    const currentCached = await getBooks() || [];
+    if(currentCached.length<31){
+        const merged = [...newResults, ...currentCached];
+        await saveBooks(merged);
+        setBooks(merged)
+    } else{
+      const last10 = currentCached.slice(20, 29)
+      const merged = [...newResults, ...last10];
+      await saveBooks(merged)
+      setBooks(merged)
+    }
+    
+    
+  }
 
     const fetchBooks = async(name)=>{
-      console.log(name)
+      
     try{
         const response = await axios.get(`https://openlibrary.org/search.json?q=${name}`)
 
@@ -28,13 +55,19 @@ function Home() {
           cover: item.cover_edition_key,
         }))
         setBooksList(top10)
-
+        if (top10.length > 0) {
+        await mergeAndSave(top10);
+      }
       }catch(err){
         console.log(`Error: ${err}`)
       }
       }
 
   const debouncedFunction = useCallback(debounce(fetchBooks, 600), [])
+
+   useEffect(() => {
+    console.log('books (cached) updated:', books);
+  }, [books]);
   
 
   return (
@@ -43,7 +76,7 @@ function Home() {
       <TextInput placeholder='Search using OpenLibrary...' onChangeText={(e)=>debouncedFunction(e)} style={styles.textInput} placeholderTextColor="black" />
       </View>
       <FlatList
-        data={booksList}
+        data={booksList.length ? booksList : books}
         renderItem={({item})=><Item item={item} />
         }
         keyExtractor={(item) => item.key}

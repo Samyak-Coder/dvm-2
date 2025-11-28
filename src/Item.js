@@ -7,16 +7,31 @@ import {
   Animated,
   StyleSheet,
   Button
-} from 'react-native';
+} from 'react-native';  
 import { useNavigation } from '@react-navigation/native'
+import Details from './Details'
 import {useStore} from './store'
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import {saveBooks, getBooks} from './cache_storage'
 
 const Item = ({ item }) => {
   const [expanded, setExpanded] = useState(false);
+  const [liked, setLiked] = useState(false);
   const anim = useRef(new Animated.Value(0)).current;
   const [contentHeight, setContentHeight] = useState(0);
   const navigation = useNavigation()
   const setSelected = useStore((s) => s.setSelected)
+
+  const mergeAndSave = async (itemN) => {
+    setLiked(!liked)
+    const newResults = Array.isArray(itemN) ? itemN : [itemN];
+    const currentCached = await getBooks() || [];
+  console.log("newres", currentCached)
+
+    const merged = [...newResults, ...currentCached];
+    await saveBooks(merged);
+  
+  }
 
   const toggleList = () => {
     const toValue = expanded ? 0 : 1;
@@ -68,9 +83,16 @@ const Item = ({ item }) => {
                 if (contentHeight === 0 && h > 0) setContentHeight(h);
               }}
             >
+            <View style={{display: 'flex', flexDirection: 'row', alignItems:'center', justifyContent: 'space-between' }}>
+            <View>
               <Text> Author: {item.author}</Text>
               <Text> Publish Year: {item.publish_year}</Text>
-              <Button title="More!!" onPress={()=>toDetails(item)}/>
+            </View>
+            <TouchableOpacity onPress={()=>mergeAndSave(item)}>
+              <FontAwesome name={liked ? "heart" : "heart-o"} size={24} color="black" style={{padding: 10}}/>
+            </TouchableOpacity>
+            </View>
+              <Button title="More!!" onPress={()=>toDetails(item)} style={{marginBottom: 10}}/>
             </View>
           </Animated.View>
           
